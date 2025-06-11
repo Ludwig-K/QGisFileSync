@@ -10,79 +10,72 @@
 <body>
 	<div id="language_select">
 		<a href="index.de.html" title="language DE"><img
-			style="width: 30px; height: 20px; border: 2px solid silver;"
+			style="width: 30px; height: 20px; border: 2px solid transparent;"
 			src="images/Flag_of_Germany.svg" alt="" /></a> <a href="index.en.html"
 			title="language UK"><img
-			style="width: 30px; height: 20px; border: 2px solid transparent;"
+			style="width: 30px; height: 20px; border: 2px solid silver;"
 			src="images/Flag_of_UK.svg" alt="" /></a>
 	</div>
 
 	<div class="p_1" id="top">
 		<h1>FileSync (Release 1.0)</h1>
-		<p>QGis-Plugin zur Extraktion und Speicherung von Datei-Metadaten
-			als Attribut/Georeferenzierung in einem Punkt-Layer.</p>
+		<p>QGis plugin for extracting and storing file metadata as
+			attribute/georeference in a point layer.</p>
 		<div class="p_2" id="Preface">
-			<h2>Vorwort</h2>
+			<h2>Preface</h2>
 
-			<p>Ursprüngliche Anwendung: Digitalfotos mit
-				GPS-lat/lon-Koordinaten im Exif-Header.</p>
+			<p>Original purpose: Digital photos with GPS-lat/lon coordinates
+				in Exif-header.</p>
 			<p>
-				Szenario:<br />Ein Tag unterwegs, viele Fotos mit dem Handy
-				aufgenommen, leider zu spät bemerkt, dass die Fotos ohne
-				GPS-Koordinaten abgelegt wurden :-(<br /> Ergebnis: Ein Ordner
-				voller Fotos, leider ohne Angaben, wo und wann genau diese
-				aufgenommen wurden.<br /> Schön wäre jetzt ein Punkt-Layer mit
-				Fotostandorten, Aufnahmerichtung, Zeitpunkt der Aufnahme...
+				Scenario:<br />A day on the road, many photos taken with the cell
+				phone, unfortunately noticed too late that the photos were stored
+				without GPS coordinates :-(<br /> Result: A folder full of photos,
+				unfortunately without information about where and when exactly they
+				were taken.<br />It would be nice to have a point layer with photo
+				locations, shooting direction, time of shooting...
 			</p>
-			<p>Genau zu diesem Zweck bietet das Plugin Hilfestellungen, um</p>
+			<p>The plugin offers assistance for precisely this purpose, to</p>
 			<ul>
-				<li>Verzeichnisse einzuscannen ➞ je Scanvorgang ein temporärer
-					Punktlayer, je Datei ein Punkt-Feature mit den extrahierten <a
-					href='#ExtractableFileMetas'>Metadaten</a> als Attribut und ggf.
-					einer Geometrie aus Exif-GPS-Daten (<a href='#PreScan'><b><i>PreScan</i></b></a>)
+				<li>Scan directories ➞ One temporary point layer per scan, one
+					point feature per file with the extracted <a
+					href='#ExtractableFileMetas'>metadata</a> as attributes and
+					possibly a geometry from Exif-GPS-data (<a href='#PreScan'><b><i>PreScan</i></b></a>)
 				</li>
-				<li>diese temporären Punktlayer mit bereits vorhandenen
-					Punktlayern zu synchronsisieren (<a href='#Sync'><b><i>Sync</i></b></a>)
+				<li>synchronize these temporary point layers with existing
+					point layers (<a href='#Sync'><b><i>Sync</i></b></a>)
 				</li>
-				<li><a href='#ExtractableFileMetas'>Metdaten</a> bereits
-					referenzierter Dateien nachträglich zu ergänzen oder zu
-					aktualisieren (<a href='#PostScan'><b><i>PostScan</i></b></a>)</li>
+				<li>subsequently supplement or update <a href='#ExtractableFileMetas'>metadata</a> of already referenced files
+				(<a href='#PostScan'><b><i>PostScan</i></b></a>)</li>
 			</ul>
 		</div>
 		<div class="p_2" id="PreScan">
 			<h2>PreScan</h2>
 			<img src='./images/ksnip_20250608-191805.png' class='img_pl_30' />
 			<ol>
-				<li>'Scan Directory' ➞ Auswahl des zu scannenden Verzeichnisses</li>
-				<li>'Include Sub-Directories' ➞ optional mit rekursiven
-					Unterverzeichnissen</li>
-				<li>'File Extensions' ➞ Auswahl der einzuscannenden Datei-Typen
-					über deren Erweiterung, kommaseparierte Liste in Wildcard-Syntax,
-					über Auswahlliste übliche Muster auswählbar</li>
-				<li>'Out-Projection' ➞ Zielprojektion des zu erzeugenden
-					Punkt-Layers</li>
-				<li>'Extract File-Metas' ➞ Auswahl der zu extrahierenden
-					Metadaten (siehe <a href='#ExtractableFileMetas'>Extrahierbare
-						Metadaten</a>)
+				<li>'Scan Directory' ➞ Select directory to be scanned</li>
+				<li>'Include Sub-Directories' ➞ optionally include sub-directories</li>
+				<li>'File Extensions' ➞ limit scanned file-types with commaseparated list of wildcard-patterns,
+					common patterns selectable via drop-down</li>
+				<li>'Out-Projection' ➞ target-projection for created point-layer</li>
+				<li>'Extract File-Metas' ➞ selection of meta-data to be extracted (see <a href='#ExtractableFileMetas'>extractable
+						metadata</a>)
 				</li>
-				<li>Start des Scan-Vorgangs</li>
+				<li>Start the scan process</li>
 			</ol>
 			<p>
-				Ergebnis ist ein temporärer Layer, Geometrietyp PointZ. Vorhandene
-				Exif-GPS-Metadaten werden zur Georeferenzierung verwendet. <img
+				Result is a temporary layer, geometrytype PointZ. Existing Exif-GPS-Metadaten will be uesed for georeference. <img
 					src='images/Screenshot 2025-06-10 115636.png' class='img_pl_30' />
-				(zu den Icons <img style="width: 20px; height: 20px;"
+				(for the icons  <img style="width: 20px; height: 20px;"
 					src="images/mActionFileOpen.svg" alt=""> <img
 					style="width: 20px; height: 20px;" src="images/mActionAddArrow.svg"
-					alt=""> in der Spalte 'Actions' siehe <a href='#LayerActions'>LayerActions</a>)
+					alt=""> in the ‘Actions’ column, see <a href='#LayerActions'>LayerActions</a>)
 			</p>
 
 			<p>
-				Im <a href='#Log'>Log</a>-Bereich werden die Einstellungen und ein
-				Protokoll des Scanvorgangs angezeigt
+				Settings and result of the scan process will be shown in the <a href='#Log'>Log</a>-tab.
 			</p>
 			<p>
-				<b>Hinweis:</b> die hier erzeugten Layer sind <b>temporär</b> und verlieren ihre Inhalte beim Schließen des Projektes!
+				<b>Note:</b> the layers created are <b>temporary</b> and lose their content if the project is closed.
 			</p>
 		</div>
 
