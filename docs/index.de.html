@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta content="text/html;charset=utf-8" http-equiv="content-type">
+<link href='./index.css' rel='stylesheet' type='text/css' />
+<title>QGis-Plugin FileSync Documentation</title>
+<link rel="icon" href="./images/mActionHistory.svg" />
+</head>
+<body>
+	<div id="language_select">
+		<a href="index.de.html" title="language DE"><img
+			style="width: 30px; height: 20px; border: 2px solid silver;"
+			src="images/Flag_of_Germany.svg" alt="" /></a> <a href="index.en.html"
+			title="language UK"><img
+			style="width: 30px; height: 20px; border: 2px solid transparent;"
+			src="images/Flag_of_UK.svg" alt="" /></a>
+	</div>
+
+	<div class="p_1" id="top">
+		<h1>FileSync (Release 1.0)</h1>
+		<p>QGis-Plugin zur Extraktion und Speicherung von Datei-Metadaten
+			als Attribut/Georeferenzierung in einem Punkt-Layer.</p>
+		<div class="p_2" id="Preface">
+			<h2>Vorwort</h2>
+
+			<p>Ursprüngliche Anwendung: Digitalfotos mit
+				GPS-lat/lon-Koordinaten im Exif-Header.</p>
+			<p>
+				Szenario:<br />Ein Tag unterwegs, viele Fotos mit dem Handy
+				aufgenommen, leider zu spät bemerkt, dass die Fotos ohne
+				GPS-Koordinaten abgelegt wurden :-(<br /> Ergebnis: Ein Ordner
+				voller Fotos, leider ohne Angaben, wo und wann genau diese
+				aufgenommen wurden.<br /> Schön wäre jetzt ein Punkt-Layer mit
+				Fotostandorten, Aufnahmerichtung, Zeitpunkt der Aufnahme...
+			</p>
+			<p>Genau zu diesem Zweck bietet das Plugin Hilfestellungen, um</p>
+			<ul>
+				<li>Verzeichnisse einzuscannen ➞ je Scanvorgang ein temporärer
+					Punktlayer, je Datei ein Punkt-Feature mit den extrahierten <a
+					href='#ExtractableFileMetas'>Metadaten</a> als Attribut und ggf.
+					einer Geometrie aus Exif-GPS-Daten (<a href='#PreScan'><b><i>PreScan</i></b></a>)
+				</li>
+				<li>diese temporären Punktlayer mit bereits vorhandenen
+					Punktlayern zu synchronsisieren (<a href='#Sync'><b><i>Sync</i></b></a>)
+				</li>
+				<li><a href='#ExtractableFileMetas'>Metdaten</a> bereits
+					referenzierter Dateien nachträglich zu ergänzen oder zu
+					aktualisieren (<a href='#PostScan'><b><i>PostScan</i></b></a>)</li>
+			</ul>
+		</div>
+		<div class="p_2" id="PreScan">
+			<h2>PreScan</h2>
+			<img src='./images/ksnip_20250608-191805.png' class='img_pl_30' />
+			<ol>
+				<li>'Scan Directory' ➞ Auswahl des zu scannenden Verzeichnisses</li>
+				<li>'Include Sub-Directories' ➞ optional mit rekursiven
+					Unterverzeichnissen</li>
+				<li>'File Extensions' ➞ Auswahl der einzuscannenden Datei-Typen
+					über deren Erweiterung, kommaseparierte Liste in Wildcard-Syntax,
+					über Auswahlliste übliche Muster auswählbar</li>
+				<li>'Out-Projection' ➞ Zielprojektion des zu erzeugenden
+					Punkt-Layers</li>
+				<li>'Extract File-Metas' ➞ Auswahl der zu extrahierenden
+					Metadaten (siehe <a href='#ExtractableFileMetas'>Extrahierbare
+						Metadaten</a>)
+				</li>
+				<li>Start des Scan-Vorgangs</li>
+			</ol>
+			<p>
+				Ergebnis ist ein temporärer Layer, Geometrietyp PointZ. Vorhandene
+				Exif-GPS-Metadaten werden zur Georeferenzierung verwendet. <img
+					src='images/Screenshot 2025-06-10 115636.png' class='img_pl_30' />
+				(zu den Icons <img style="width: 20px; height: 20px;"
+					src="images/mActionFileOpen.svg" alt=""> <img
+					style="width: 20px; height: 20px;" src="images/mActionAddArrow.svg"
+					alt=""> in der Spalte 'Actions' siehe <a href='#LayerActions'>LayerActions</a>)
+			</p>
+
+			<p>
+				Im <a href='#Log'>Log</a>-Bereich werden die Einstellungen und ein
+				Protokoll des Scanvorgangs angezeigt
+			</p>
+			<p>
+				<b>Hinweis:</b> die hier erzeugten Layer sind <b>temporär</b> und verlieren ihre Inhalte beim Schließen des Projektes!
+			</p>
+		</div>
+
+		<div class="p_2" id="Sync">
+			<h2>Sync</h2>
+			<p>Diese dient der Synchronisation der temporären
+				PreScan-Ergebnisse mit einem bereits vorhandenem regulären
+				Punktlayer. So kann ein georeferenzierter Bestand von Dateien bei
+				Bedarf mit neuen PreScan-Ergebnissen ergänzt werden.</p>
+			<p>
+				<b>Hinweis:</b>das Plugin verwendet absolute Pfadangaben, je nach
+				Laufzeitumgebung können sich dadurch Probleme ergeben (Pfadangaben
+				Linux vs. Windows, geänderte Laufwerksbuchstaben, Änderungen der
+				Ordnerstruktur). Das plugin verwendet grundsätzlich die
+				Posix-Schreibweise, also auch in Windows '/' (Slash) statt '\'
+				(Backslash). Bei Bedarf sind die Pfadangaben im Target-Layer vorab
+				an die Laufzeitumgebung anzupassen.
+			</p>
+			<img src='images/Screenshot 2025-06-10 141943.png' class='img_pl_30' />
+
+			<ol>
+				<li>Auswahl der beiden Layer, refresh der Layer-Liste mittels <img
+					style="width: 20px; height: 20px;" src="images/mActionRefresh.svg"
+					alt="">
+				</li>
+				<li>Auswahl der notwendigen Pfad-Felder</li>
+				<li>File-Mode
+					<ul>
+						<li>'Keep' ➞ die Dateien bleiben an ihrem Speicherort</li>
+						<li>'Copy' ➞ die Dateien werden in das anzugebende
+							Zielverzeichnis kopiert</li>
+
+					</ul>
+				</li>
+				<li>File-Mode 'Copy': Zielverzeichnis</li>
+				<li>File-Mode 'Copy': optional ein Unterverzeichnis im
+					Zielverzeichnis aus einem Feld des Source-Layers</li>
+				<li>File-Mode 'Copy': Existing-File-Mode, Umgang mit
+					Dateiduplikaten (im Zielverzeichnis befindet sich bereits eine
+					Datei diesen Namens)<br /> Varianten:
+					<ul>
+						<li>'replace' ➞ Datei wird ersetzt</li>
+						<li>'rename' ➞ die einzufügende Datei wird umbenannt
+							(inkrementierte Zählervariable), die Altdatei bleibt erhalten</li>
+						<li>'skip' ➞ Datei wird nicht eingefügt</li>
+					</ul>
+				</li>
+				<li>'Existing Feature Mode', Umgang mit Pfad-Duplikaten im
+					Layer<br /> Varianten:
+					<ul>
+						<li>'update, overwrite existing values' ➞ vorhandene
+							Attribute im Target-Layer werden von den Attributen des
+							Source-Layers überschrieben</li>
+						<li>'update, preserve existing values' ➞ vorhandene Attribute
+							im Target-Layer bleiben erhalten, nur die dort fehlenden
+							Attribute werden aus dem Source-Layer übernommen</li>
+						<li>'insert duplicate' ➞ zu diesem Pfad vorhandene Datensätze
+							im Target-Layer bleiben erhalten, für die eingefügten Dateien
+							werden neue Datensätze (Duplikate) angelegt</li>
+						<li>'replace' ➞ zu diesem Pfad vorhandene Datensätze im
+							Target-Layer werden <b>gelöscht</b> (!), für die eingefügten
+							Dateien werden neue Datensätze angelegt
+						</li>
+						<li>'skip' ➞ dieser Datensatz wird übersprungen</li>
+					</ul>
+				</li>
+				<li>'update geometries' ➞ für vorgenannte Update-Varianten:
+					Geometrien des Source-Layers übernehmen oder vorhandene Geomerien
+					beibehalten?</li>
+				<li>Sync-Fields ➞ Auswahl der abzugleichenden Felder in Source-
+					und Target-Layer<br /> Die paarweise links und rechts
+					auszuwählenden Felder werden mittels '▼&nbsp;Add&nbsp;▼' in die
+					Liste unterhalb eingefügt Die Zuordnungen dort können zeilenweise
+					mittels '✖' bzw. alle zusammen mit '✖&nbsp;Clear&nbsp;✖' entfernt
+					werden.
+				</li>
+				<li>'Start Synchronize' startet die Synchronisation das
+					Ergebnis wird im <a href='#Log'>Log</a>-Bereich angezeigt
+				</li>
+			</ol>
+
+		</div>
+
+		<div class="p_2" id="PostScan">
+			<h2>PostScan</h2>
+			<p>In diesem Modus können bei bereits referenzierten Dateien
+				eines Layers die Metadaten ergänzt oder aktualisiert werden.</p>
+			<img src='images/Screenshot 2025-06-10 151136.png' class='img_pl_30' />
+			<ol>
+				<li>'PostScan-Layer' ➞ Auswahl des Layers</li>
+				<li>'Absolute-Path-Field' ➞ Feld in diesem Layer mit den
+					Pfadinformationen</li>
+				<li>'preserve existing data' ➞ vorhandene Daten/Geometrien
+					erhalten, nur fehlende Metadaten ergänzen</li>
+				<li>'update geometries' ➞ Geometrien aus Exif-GPS-Metas
+					aktualisieren (unter Beachtung des preserve-modes)</li>
+				<li>'Extract File-Metas' ➞ Auswahl der zu extrahierenden
+					Metadaten (siehe <a href='#ExtractableFileMetas'>Extrahierbare
+						Metadaten</a>)
+				</li>
+				<li>'Start PostScan' startet den Vorgang, das Ergebnis wird im
+					<a href='#Log'>Log</a>-Bereich angezeigt
+				</li>
+			</ol>
+
+		</div>
+
+		<div class="p_2" id="LayerActions">
+			<h2>LayerActions</h2>
+			Das Plugin implementiert zwei Actions in den verwendeten Layern: <img
+				src='images/Screenshot 2025-06-10 164616.png' class='img_pl_30' />
+			<img src='images/Screenshot 2025-06-10 164322.png' class='img_pl_30' />
+			<div class="p_3">
+				<h3>
+					<img style="width: 30px; height: 30px;"
+						src="images/mActionAddArrow.svg" alt=""> ShowPosition
+				</h3>
+				<p>Funktionalität:</p>
+				<ul>
+					<li>[Click] ➞ Pan *</li>
+					<li>[Shift + Click] ➞ Pan + Zoom in *</li>
+					<li>[Ctrl. + Click] ➞ Pan + Zoom out *</li>
+					<li>[Ctrl. + Shift + Click] ➞ Einstellungsdialog, s. u.</li>
+				</ul>
+				* falls Geometrie vorhanden
+				<p>Falls ein Feld mit der Aufnahmerichtung konfiguriert wurde
+					wird diese auf der Karte mit einer temporär blinkenden Pfeil-Grafik
+					symbolisiert.</p>
+				<p>Falls der Layer im Editiermodus ist kann im Anschluss für
+					diesen Datensatz eine neue Geometrie mit Klick auf die Karte
+					festgelegt werden</p>
+				<p>Falls ein Feld mit der Aufnahmerichtung konfiguriert wurde
+					kann über eine digitalisierte Linie zusätzlich die Aufnahmerichtung
+					(Nordrichtung im Gegenuhrzeigersinn) erfasst werden. MouseDown ➞
+					Kamerastandort, MouseUp ➞ Zielpunkt/Aufnahmerichtung.</p>
+				<p>Hinweis: Die Geometrie-Erfassung kann auch ohne vorhandene
+					Geometrie (GeometryType.Null/WkbType.NoGeometry) erfolgen.</p>
+			</div>
+			<div class="p_3">
+				<h3>
+					<img style="width: 30px; height: 30px;"
+						src="images/mActionFileOpen.svg" alt=""> OpenFile
+				</h3>
+				<p>Öffnet zusätzlich die mit dem absoluten Pfad referenzierte
+					Datei im zugeordneten Programm (weitere Funktionalität siehe
+					ShowPosition-MapTool)</p>
+			</div>
+
+			<div class="p_3">
+				<h3>Einstellungsdialog</h3>
+				<p>
+					Der für beide MapTools identische Einstellungsdialog öffnet sich
+					via [Ctrl. + Shift + Click], hier können die drei erforderlichen
+					Felder des Layers konfiguriert werden: <img
+						src="images/Screenshot 2025-06-10 121411.png" class="img_pl_30">
+				</p>
+				<p>Absolute-Path-Field: Feld mit der absoluten Pfadangabe zur
+					Datei, verwendet für die OpenFile-Voransicht</p>
+				<p>Direction-Field: Feld mit der Aufnahmerichtung</p>
+				<p>Last-Edit-Date-Time-Field: Speicherung der letzten
+					Bearbeitung mit diesen MapTools.</p>
+			</div>
+		</div>
+
+		<div class="p_2" id="Log">
+			<h2>Log</h2>
+			Dieser Bereich des Dialogs zeigt die Einstellungen und Protokolle der
+			durchgeführten PreScan/Sync/PostScan-Läufe an. <img
+				src='images/Screenshot 2025-06-10 115301.png' class='img_pl_30' />
+			Mit den 'Back'/'For'- Buttons können frühere Log-Ergebnisse
+			angezeigt, mit 'Clear' der Verlauf gelöscht werden.
+
+		</div>
+
+		<div class="p_2" id="SessionData">
+			<h2>Speicherung der Einstellungen</h2>
+			Das Plugin speichert alle Einstellungen in der Datei
+			'.QGis_FileSync_Plugin.ini' im User-Arbeitsverzeichnis. Bei Aufruf
+			des Plugins (Erstaufruf des Dialogs nach dem Öffnen eines Projektes)
+			werden diese rekonstruiert und im Log-Bereich aufgelistet: <img
+				src="images/Screenshot 2025-06-10 160953.png" class="img_pl_30">
+		</div>
+
+		<div class="p_2" id="ExtractableFileMetas">
+			<h2>Extrahierbare Metadaten</h2>
+			<img src='./images/ksnip_20250608-193237.png' class="img_pl_30" />
+			<table class='default'>
+				<tr>
+					<th>Name</th>
+					<th>Inhalt</th>
+					<th>Bemerkungen</th>
+				</tr>
+
+				<tr>
+					<td>abs_path</td>
+					<td>absoluter Pfad</td>
+					<td>obligatorische Grundlage ➞ automatisch selektiert</td>
+				</tr>
+
+				<tr>
+					<td>file_hash</td>
+					<td>sha1-Hash</td>
+					<td>aus Datei-Inhalt berechneter eindeutiger "Fingerabdruck",
+						ermöglicht die Duplikatsuche unabhängig von Dateinamen/Metadaten <a
+						href='https://de.wikipedia.org/wiki/Secure_Hash_Algorithm'
+						target='_blank'>Wikipedia: Secure_Hash_Algorithm</a>
+					</td>
+				</tr>
+
+				<tr>
+					<td>rel_path</td>
+					<td>relativer Pfad</td>
+					<td>Pfad relativ zu einem anzugebenden Wurzel-Verzeichnis</td>
+				</tr>
+				<tr>
+					<td>file_name</td>
+					<td>Dateiname</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>extension</td>
+					<td>Dateierweiterung</td>
+					<td>lowercase, ohne Punkt</td>
+				</tr>
+				<tr>
+					<td>exif_metas</td>
+					<td>Exif-Metadaten</td>
+					<td>Dateiheader in Jpeg-Grafiken mit u. A. Angaben zu Kamera,
+						Aufnahmezeitpunkt, Geo-Koordinaten <a
+						href='https://en.wikipedia.org/wiki/Exif' target='_blank'>Wikipedia:
+							Exif</a><br />Gespeichert wird eine stringifizierte Version der
+						Metadaten.
+					</td>
+				</tr>
+				<tr>
+					<td>iptc_metas</td>
+					<td>IPTC-Metadaten</td>
+					<td>Dateiheader mit weiteren Metadaten <a
+						href='https://en.wikipedia.org/wiki/IPTC_Information_Interchange_Model'
+						target='_blank'>Wikipedia: IPTC_Information_Interchange_Model</a><br />Gespeichert
+						wird eine stringifizierte Version der Metadaten.
+					</td>
+				</tr>
+				<tr>
+					<td>xmp_metas</td>
+					<td>XMP-Metadaten</td>
+					<td>Dateiheader mit weiteren Metadaten (Extensible Metadata) <a
+						href='https://en.wikipedia.org/wiki/Extensible_Metadata_Platform'
+						target='_blank'>Wikipedia: Extensible_Metadata_Platform</a><br />Gespeichert
+						wird eine stringifizierte Version der Metadaten.
+					</td>
+				</tr>
+				<tr>
+					<td>file_size</td>
+					<td>Dateigröße in Byte</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>image_width</td>
+					<td>Bild-Breite in Pixel</td>
+					<td>nur bei Grafikdateien</td>
+				</tr>
+				<tr>
+					<td>image_height</td>
+					<td>Bild-Höhe in Pixel</td>
+					<td>nur bei Grafikdateien</td>
+				</tr>
+				<tr>
+					<td>gps_latitude</td>
+					<td>Geokoordinate Aufnahmepunkt</td>
+					<td>aus Jpeg-Exif-GPS-Header extrahierter Breitengrad, WGS84</td>
+				</tr>
+				<tr>
+					<td>gps_longitude</td>
+					<td>Geokoordinate Aufnahmepunkt</td>
+					<td>aus Jpeg-Exif-GPS-Header extrahierter Längengrad, WGS84</td>
+				</tr>
+				<tr>
+					<td>gps_altitude</td>
+					<td>Geokoordinate Aufnahmepunkt</td>
+					<td>aus Jpeg-Exif-GPS-Header extrahierter Höhenwert, WGS84</td>
+				</tr>
+				<tr>
+					<td>gps_img_direction</td>
+					<td>Blickrichtung der Aufnahme</td>
+					<td>aus Jpeg-Exif-GPS-Header extrahiert, Nordrichtung gegen
+						Uhrzeigersinn</td>
+				</tr>
+				<tr>
+					<td>m_time</td>
+					<td>Modification Time: Datum/Uhrzeit der letzten Änderung</td>
+					<td><a href='https://en.wikipedia.org/wiki/MAC_times'
+						target='_blank'>Wikipedia: MAC_times</a></td>
+				</tr>
+				<tr>
+					<td>c_time</td>
+					<td>Creation Time: Datum/Uhrzeit Dateierstellung</td>
+					<td>je nach Systemumgebung auch Datum/Uhrzeit Änderungen der
+						Metadaten (Eigentümer, Berechtigung) <a
+						href='https://en.wikipedia.org/wiki/MAC_times' target='_blank'>Wikipedia:
+							MAC_times</a>
+					</td>
+				</tr>
+				<tr>
+					<td>a_time</td>
+					<td>Access Time: Datum/Uhrzeit des letzten Lesezugriffs</td>
+					<td><a href='https://en.wikipedia.org/wiki/MAC_times'
+						target='_blank'>Wikipedia: MAC_times</a></td>
+				</tr>
+				<tr>
+					<td>date_time_original</td>
+					<td>Datum/Uhrzeit der Aufnahme</td>
+					<td>aus Jpeg-Exif-Header extrahiert, Wert entsprechend
+						System-Einstellung des Aufnahmegeräts (Mobiltelefon...)</td>
+				</tr>
+			</table>
+		</div>
+		<div class="p_2" id="Impressum">
+			<h2>Impressum</h2>
+			<div>
+				<table class="invisible">
+					<tr>
+						<td>Author:</td>
+						<td>Ludwig Kniprath</td>
+					</tr>
+					<tr>
+						<td>Mailto:</td>
+						<td>ludwig[at]kni-online.de</td>
+					</tr>
+					<tr>
+						<td>Version:</td>
+						<td>1.0.0 (2025-06)</td>
+					</tr>
+					<tr>
+						<td colspan="2">Das Plugin wird unter der derzeit aktuellen
+							QGis Version "3.42.3-Münster" entwickelt und auf
+							Abwärtskompatibilität mit "3.34.10-Prizren" (LTR).</td>
+					</tr>
+					<tr>
+						<td colspan="2">Quell-Code und Tracker unter <a
+							href="https://github.com/Ludwig-K/QGisFileSync/" target="_blank">https://github.com/Ludwig-K/QGisFileSync/</a>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">Das Project steht unter der GNU GPL 2-Lizenz.</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
