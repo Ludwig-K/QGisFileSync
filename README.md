@@ -32,12 +32,12 @@ Digital photos with GPS-lat/lon coordinates in Exif-header.
 
 
 ## More Instructions: ##
-[docs/index.en.html](https://htmlpreview.github.io/?https://github.com/Ludwig-K/QGisLinearReference/blob/main/docs/index.en.html)
+[docs/index.en.html](https://htmlpreview.github.io/?https://github.com/Ludwig-K/QGisFileSync/blob/main/docs/index.en.html)
 
 
 ## Contribute ##
-- Issue Tracker: https://github.com/Ludwig-K/QGisLinearReference/issues
-- Source Code: https://github.com/Ludwig-K/QGisLinearReference
+- Issue Tracker: https://github.com/Ludwig-K/QGisFileSync/issues
+- Source Code: https://github.com/Ludwig-K/QGisFileSync
 
 ## Support ##
 If you are having issues, please let me know.
