@@ -83,3 +83,8 @@ table.invisible td {
     border-style: none;
     text-align: left;
 }
+
+table.invisible th {
+    border-style: none;
+    text-align: left;
+}
