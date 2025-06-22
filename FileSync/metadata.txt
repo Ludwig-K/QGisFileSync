@@ -1,0 +1,25 @@
+[general]
+name=FileSync
+version=1.0.0
+category=Plugins
+icon=icons/mActionHistory.svg
+experimental=False
+deprecated=False
+qgisMinimumVersion=3.0
+qgisMaximumVersion=3.99
+tags=python, document, image, file, jpeg, jpg, exif, iptc, xmp, gps, synchronize, DMS
+description=Tools to sync directory-files with point-layer
+about=Tools to sync files with layer:
+  - PreScan: pre-scan import directory
+  - Sync: synchronize pre-scan-result-layers with existing point-layer
+  - PostScan: extract and store metadata in layers with referenced files (exif, GPS, size, date)
+
+author=Ludwig Kniprath
+email=ludwig[at]kni-online.de
+homepage=https://github.com/Ludwig-K/QGisFileSync/
+tracker=https://github.com/Ludwig-K/QGisFileSync/issues
+repository=https://github.com/Ludwig-K/QGisFileSync
+
+changelog=
+  <p>1.0.0 (2025-04-11)
+  - Initial release
